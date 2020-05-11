@@ -1,0 +1,61 @@
+.mine-area {
+    &-select {
+        background-color: #ffffff;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        box-sizing: border-box;
+        height: 32px;
+        padding-left: 11px;
+        padding-right: 24px;
+        position: relative;
+        width: 100%;
+
+        &-lg {
+            height: 40px;
+        }
+
+        &-sm {
+            height: 24px;
+            padding-left: 7px;
+        }
+
+        &-open {
+            .mine-area {
+                &-arrow {
+                    transform: translateY(-50%) rotate(180deg);
+                    transition: transform 0.3s;
+                }
+            }
+        }
+    }
+
+    &-arrow {
+        color: rgba(0, 0, 0, .25);
+        cursor: pointer;
+        font-size: 12px;
+        line-height: 1;
+        position: absolute;
+        right: 10px;
+        transform: translateY(-50%);
+        transform-origin: 50% 50%;
+        transition: transform 0.3s;
+        top: 50%;
+    }
+
+    &-items {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        &::after {
+            clear:both;
+            content: "";
+            display: block;
+        }
+    }
+
+    &-item {
+        float: left;
+        height: 22px;
+    }
+}
