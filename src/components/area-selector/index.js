@@ -36,19 +36,45 @@ class AreaSelector extends React.Component {
     if (!resultDom.contains(target)) {
       return;
     }
-    const { isOpen } = this.state;
     this.setState({
-      isOpen: !isOpen,
+      isOpen: true,
     });
   };
 
-  handleChange = () => {};
+  handleChange = (value, callback) => {
+    const { onChange } = this.props;
+    this.setState(
+      {
+        value,
+        isOpen: false,
+      },
+      () => {
+        if (onChange) {
+          onChange(value);
+        }
+        if (callback) {
+          callback();
+        }
+      },
+    );
+  };
 
-  handleTagClose = () => {};
+  handleCancel = callback => {
+    this.setState(
+      {
+        isOpen: false,
+      },
+      () => {
+        if (callback) {
+          callback();
+        }
+      },
+    );
+  };
 
   renderView = () => {
     const resultDom = this.resultRef.current;
-    const { size, dataSource, fieldName } = this.props;
+    const { size, dataSource, fieldName, okText, cancelText } = this.props;
     const { value, isOpen } = this.state;
 
     if (!this.viewDom) {
@@ -75,6 +101,10 @@ class AreaSelector extends React.Component {
         style={style}
         dataSource={dataSource}
         fieldName={fieldName}
+        okText={okText}
+        cancelText={cancelText}
+        handleChange={this.handleChange}
+        handleCancel={this.handleCancel}
       />,
       this.viewDom,
     );
@@ -86,10 +116,12 @@ class AreaSelector extends React.Component {
       const obj = this.getBranch(v);
       const names = [];
       const parents = obj.parentNodes;
-      parents.forEach(p => {
-        names.push(p.name);
-      });
       const { node } = obj;
+      parents.forEach(p => {
+        if (p.code !== '999999') {
+          names.push(p.name);
+        }
+      });
       names.push(node.name);
       return {
         name: names.join('/'),
@@ -97,45 +129,6 @@ class AreaSelector extends React.Component {
       };
     });
   };
-
-  /* 去重逻辑 */
-  /* fn = () => {
-    const temp = [];
-    const vLen = value.length;
-    for (let v = 0; v < vLen; v++) {
-      const obj = this.getBranch(value[v]);
-      const parents = obj.parentNodes;
-      const pLen = parents.length;
-      if (pLen > 0) {
-        // 判断祖先节点的值是否在传入数据中已存在
-        let isHave = false;
-        const names = [];
-        for (let i = 0; i < parents.length; i++) {
-          if (value.includes(parents[i].code)) {
-            isHave = true;
-            break;
-          } else {
-            names.push(parents[i].name);
-          }
-        }
-        if (!isHave) {
-          const { name, code } = obj.node;
-          names.push(name);
-          temp.push({
-            name: names.join('/'),
-            code,
-          });
-        }
-      } else {
-        const { name, code } = obj.node;
-        temp.push({
-          name,
-          code,
-        });
-      }
-    }
-    return temp;
-  } */
 
   getBranch = value => {
     const { dataSource } = this.props;
@@ -195,15 +188,18 @@ class AreaSelector extends React.Component {
           [`${baseClass}-select-sm`]: size === 'small',
           [`${baseClass}-select-open`]: isOpen,
         })}
-        onClick={() => {}}
       >
         {this.getNames().length > 0 ? (
           <ul className={classNames(`${baseClass}-items`)}>
             {this.getNames().map(v => (
-              <li className={classNames(`${baseClass}-item`)} key={`area-${v.code}`}>
-                <Tag closable onClose={this.handleTagClose}>
-                  {v.name}
-                </Tag>
+              <li
+                className={classNames(`${baseClass}-item`, {
+                  [`${baseClass}-item-lg`]: size === 'large',
+                  [`${baseClass}-item-sm`]: size === 'small',
+                })}
+                key={`area-${v.code}`}
+              >
+                <Tag>{v.name}</Tag>
               </li>
             ))}
           </ul>
@@ -229,6 +225,8 @@ AreaSelector.defaultProps = {
     code: 'code',
     children: 'list',
   },
+  okText: 'OK',
+  cancelText: 'Cancel',
 };
 
 AreaSelector.propTypes = {
@@ -237,6 +235,9 @@ AreaSelector.propTypes = {
   placeholder: PropTypes.string,
   dataSource: PropTypes.array,
   fieldName: PropTypes.object,
+  okText: PropTypes.string,
+  cancelText: PropTypes.string,
+  onChange: PropTypes.func,
 };
 
 export default AreaSelector;
